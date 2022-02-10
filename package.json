@@ -6,7 +6,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "",
+  "homepage": "https://github.com/Redns/picgo-plugin-postimage",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "patch": "npm version patch && git push origin master && git push origin --tags",
@@ -18,7 +18,7 @@
     "picgo-gui-plugin",
     "picgo-plugin"
   ],
-  "author": "krins",
+  "author": "Redns",
   "license": "MIT",
   "devDependencies": {
     "eslint": "^5.0.1",
@@ -27,5 +27,15 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0"
+  },
+  "dependencies": {
+    "xml2js": "^0.4.23"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Redns/picgo-plugin-postimage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Redns/picgo-plugin-postimage/issues"
   }
 }

@@ -1,3 +1,5 @@
+const xml2js = require('xml2js')
+
 const config = (ctx) => {
     let userConfig = ctx.getConfig('picBed.postimage-uploader')
     if (!userConfig) {
@@ -102,15 +104,15 @@ const handle = async (ctx) => {
             // 发起POST请求
             const response = await ctx.Request.request(request)
             ctx.log.success('[ResponseCode]' + response.statusCode)
-            if((response.statusCode == 200) || (response.statusCode == 201)){
-                delete imgList[i].base64Image
-                delete imgList[i].buffer
-                const url = `http://${imgList[i].fileName}.${imgList[i].extname}`
-                imgList[i]['imgUrl'] = url
-            }
-            else{
-                throw new Error('Upload failed')
-            }
+
+            // 解析xml
+            delete imgList[i].base64Image
+            delete imgList[i].buffer
+
+            var xmlParser = new xml2js.Parser({explicitArray : false, ignoreAttrs : true})
+            xmlParser.parseString(response, function(err, result){
+                imgList[i]['imgUrl'] = result.data.links.hotlink
+            })
         }
         return ctx
     }
