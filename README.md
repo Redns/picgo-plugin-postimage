@@ -23,24 +23,24 @@
 
    
 
-   3. 在[这里](https://postimages.org/login/api)获取`API KEY`，点击生成后复制下来
+3. 在[这里](https://postimages.org/login/api)获取`API KEY`，点击生成后复制下来
 
-      ![image-20220210140935379](https://i.postimg.cc/sfbSHG5b/202202101409559.png)
+   ![image-20220210140935379](https://i.postimg.cc/sfbSHG5b/202202101409559.png)
 
-      
+   
 
-   4. 在设置中填写相关信息
+4. 在设置中填写相关信息
 
-      ![image-20220210140701062](https://i.postimg.cc/k4Cz8Dp6/202202101407128.png)
+   ![image-20220210140701062](https://i.postimg.cc/k4Cz8Dp6/202202101407128.png)
 
-      - `API Key`：刚刚你复制的那串字符
-      - `图片分配`：可以看成文件夹，比如上述配置postimage就会把图片存储在image文件夹下
+   - `API Key`：刚刚你复制的那串字符
+   - `图片分配`：可以看成文件夹，比如上述配置postimage就会把图片存储在image文件夹下
 
-      ![image-20220210141232534](https://i.postimg.cc/7hQyXyCy/202202101412712.png)
+   ![image-20220210141232534](https://i.postimg.cc/7hQyXyCy/202202101412712.png)
 
-      
+   
 
-   5. 点击确定，设置完成！
+5. 点击确定，设置完成！
 
    
 
