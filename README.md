@@ -15,19 +15,19 @@
 
    ![image-20220210140318183](https://i.postimg.cc/wTXTJsMH/202202101403245.png)
 
-   
+   <br>
 
 2. 前往[Postimages官网](https://postimages.org/)注册账号
 
    ![image-20220210140414411](https://i.postimg.cc/sgfQgJcb/202202101404530.png)
 
-   
+   <br>
 
 3. 在[这里](https://postimages.org/login/api)获取`API KEY`，点击生成后复制下来
 
    ![image-20220210140935379](https://i.postimg.cc/sfbSHG5b/202202101409559.png)
 
-   
+   <br>
 
 4. 在设置中填写相关信息
 
@@ -38,7 +38,7 @@
 
    ![image-20220210141232534](https://i.postimg.cc/7hQyXyCy/202202101412712.png)
 
-   
+   <br>
 
 5. 点击确定，设置完成！
 
