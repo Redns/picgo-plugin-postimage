@@ -1,6 +1,6 @@
 {
   "name": "picgo-plugin-postimage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "基于postimage的picgo插件",
   "main": "src/index.js",
   "publishConfig": {

@@ -103,7 +103,6 @@ const handle = async (ctx) => {
 
             // 发起POST请求
             const response = await ctx.Request.request(request)
-            ctx.log.success('[ResponseCode]' + response.statusCode)
 
             // 解析xml
             delete imgList[i].base64Image
