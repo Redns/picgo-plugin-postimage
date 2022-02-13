@@ -1,7 +1,7 @@
-const xml2js = require('xml2js')
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const config = (ctx) => {
-    let userConfig = ctx.getConfig('picBed.postimage-uploader')
+    let userConfig = ctx.getConfig('picBed.postimage')
     if (!userConfig) {
         userConfig = {}
     }
@@ -59,9 +59,20 @@ const requestConstruct = (userConfig, fileName, extname, img) => {
 }
 
 
+const getDownloadUrlConstruct = (page) => {
+    return {
+        'method': 'GET',
+        'url': page,
+        'headers': {
+            'User-Agent': 'PostmanRuntime/7.29.0'
+        }
+    }
+}
+
+
 const handle = async (ctx) => {
     // 获取用户配置信息
-    const userConfig = ctx.getConfig('picBed.postimage-uploader')
+    const userConfig = ctx.getConfig('picBed.postimage')
     if(!userConfig){
         throw new Error('请配置API KEY！')
     }       
@@ -90,53 +101,62 @@ const handle = async (ctx) => {
         }
     }
     
-    try{
-        const imgList = ctx.output
-        for(var i in imgList) {
-            let img = imgList[i].base64Image
-            if(!img && imgList[i].buffer){
-                img = imgList[i].buffer.toString('base64')
-            }
 
-            // 构建POST请求
-            const request = requestConstruct(userConfig, imgList[i].fileName, imgList[i].extname, img)
+    const imgList = ctx.output
+    for(var i in imgList) {
+        let img = imgList[i].base64Image
+        if(!img && imgList[i].buffer){
+            img = imgList[i].buffer.toString('base64')
+        }
 
-            // 发起POST请求
+        try{
+            // 格式化图片名称
+            var myDate = new Date()
+            var fileName = `${myDate.getFullYear()}${myDate.getMonth() + 1}${myDate.getDate()}${myDate.getHours()}${myDate.getMinutes()}${myDate.getSeconds()}`
+
+            // 上传图片
+            const request = requestConstruct(userConfig, fileName + imgList[i].extname, imgList[i].extname, img)
             const response = await ctx.Request.request(request)
 
-            // 解析xml
-            delete imgList[i].base64Image
-            delete imgList[i].buffer
+            // 解析xml中的page地址
+            var regexPage = new RegExp('<page>http://postimg.cc/\\\w*</page>')
+            var page = response.toString().match(regexPage)[0].slice(6, -7)
+            if(page){
+                // 获取下载地址
+                const getDownloadUrlRequest = getDownloadUrlConstruct(page)
+                const getDownloadUrlResponse = await ctx.Request.request(getDownloadUrlRequest)
 
-            var xmlParser = new xml2js.Parser({explicitArray : false, ignoreAttrs : true})
-            xmlParser.parseString(response, function(err, result){
-                imgList[i]['imgUrl'] = result.data.links.hotlink
-            })
+                // 解析下载地址
+                var v = fileName + imgList[i].extname
+                var regexDownloadUrl = new RegExp('https://i.postimg.cc/\\\w{8}/' + v + '\\?dl=1')
+                var url = getDownloadUrlResponse.toString().match(regexDownloadUrl)[0]
+                if((url == undefined) || (url == null)){
+                    ctx.log.info('解析下载地址失败, 请检查API Key是否过期')
+                }
+                else{
+                    // 装载下载地址
+                    delete imgList[i].base64Image
+                    delete imgList[i].buffer
+                    imgList[i]['imgUrl'] = url
+                    ctx.log.info(url)
+                }
+            }
+            else{
+                ctx.log.error('图片上传失败, 原因可能是图片尺寸超出限制、网络状态不佳……')
+            }
         }
-        return ctx
-    }
-    catch(err){
-        if (err.error === 'Upload failed') {
-            ctx.emit('notification', {
-                title: '上传失败！',
-                body: '请检查你的配置项是否正确'
-            })
-        } 
-        else {
-            ctx.emit('notification', {
-                title: '上传失败！',
-                body: '请检查你的配置项是否正确'
-            })
+        catch(err){
+            ctx.log.info('文件上传失败, 请检查API Key是否过期、网络状态是否良好')
         }
-        throw err
     }
+    return ctx
 }
 
 
 module.exports = (ctx) => {
     const register = () => {
         ctx.log.success('postimage加载成功！')
-        ctx.helper.uploader.register('postimage-uploader', {
+        ctx.helper.uploader.register('postimage', {
             handle: handle,
             config: config,
             name: 'postimage'
@@ -144,6 +164,6 @@ module.exports = (ctx) => {
     }
     return {
         register,
-        uploader: 'postimage-uploader'
+        uploader: 'postimage'
     }
 }
