@@ -27,15 +27,22 @@ const config = (ctx) => {
 }
 
 
-const requestConstruct = (userConfig, fileName, extname, img) => {
-    const api_key = userConfig.api_key
-    const gallery = userConfig.gallery
+/**
+ * 构造图片上传请求
+ * @param {插件配置} userConfig 
+ * @param {图片名称} fileName 
+ * @param {图片拓展名（不含‘.’）} extname 
+ * @param {图片源数据} img 
+ * @returns 图片上传请求
+ */
+const imageUploadRequestConstruct = (userConfig, fileName, extname, img) => {
     var formObject = {
-        'key' : api_key,
-        'gallery': gallery,
+        'key' : userConfig.api_key,
+        'gallery': userConfig.gallery,
         'o': '2b819584285c102318568238c7d4a4c7',
         'm': '59c2ad4b46b0c1e12d5703302bff0120',
         'version': '1.0.1',
+        'portable':'1',
         'name': fileName.split('.')[0],
         'type': extname.slice(1),
         'image': img
@@ -59,7 +66,12 @@ const requestConstruct = (userConfig, fileName, extname, img) => {
 }
 
 
-const getDownloadUrlConstruct = (page) => {
+/**
+ * 构造源图片下载链接请求
+ * @param {*} page 
+ * @returns 
+ */
+const getDownloadUrlRequestConstruct = (page) => {
     return {
         'method': 'GET',
         'url': page,
@@ -71,74 +83,47 @@ const getDownloadUrlConstruct = (page) => {
 
 
 const handle = async (ctx) => {
-    // 获取用户配置信息
+    // 检查用户配置信息
     const userConfig = ctx.getConfig('picBed.postimage')
     if(!userConfig){
         throw new Error('请配置API KEY！')
     }       
 
-    var responseObject = {
-        image: {
-            name: '',
-            time: '',
-            type: '',
-            width: '',
-            height: '',
-            size: ''
-        },
-        links: {
-            page: '',
-            edit: '',
-            delete: '',
-            thumbnail: '',
-            hotlink: ''
-        },
-        codes: {
-            thumbnail_forum: '',
-            thumbnail_html: '',
-            hotlink_forum: '',
-            hotlink_html: ''
-        }
-    }
-    
-
+    // 上传图片
     const imgList = ctx.output
     for(var i in imgList) {
-        let img = imgList[i].base64Image
-        if(!img && imgList[i].buffer){
-            img = imgList[i].buffer.toString('base64')
-        }
-
         try{
-            // 格式化图片名称
-            var myDate = new Date()
-            var fileName = `${myDate.getFullYear()}${myDate.getMonth() + 1}${myDate.getDate()}${myDate.getHours()}${myDate.getMinutes()}${myDate.getSeconds()}`
+            // 获取缓冲区图片
+            let img = imgList[i].base64Image
+            if(!img && imgList[i].buffer){
+                img = imgList[i].buffer.toString('base64')
+            }
 
             // 上传图片
-            const request = requestConstruct(userConfig, fileName + imgList[i].extname, imgList[i].extname, img)
-            const response = await ctx.Request.request(request)
+            const imageFormatName = `${new Date().getTime()}${imgList[i].extname}`
+            const imageUploadRequest = imageUploadRequestConstruct(userConfig, imageFormatName, imgList[i].extname, img)
+            const imageUploadResponse = await ctx.Request.request(imageUploadRequest)
 
             // 解析xml中的page地址
             var regexPage = new RegExp('<page>http://postimg.cc/\\\w*</page>')
-            var page = response.toString().match(regexPage)[0].slice(6, -7)
+            var page = imageUploadResponse.toString().match(regexPage)[0].slice(6, -7)
             if(page){
-                // 获取下载地址
-                const getDownloadUrlRequest = getDownloadUrlConstruct(page)
+                // 获取图片管理html页面
+                const getDownloadUrlRequest = getDownloadUrlRequestConstruct(page)
                 const getDownloadUrlResponse = await ctx.Request.request(getDownloadUrlRequest)
 
-                // 解析下载地址
-                var v = fileName + imgList[i].extname
-                var regexDownloadUrl = new RegExp('https://i.postimg.cc/\\\w{8}/' + v + '\\?dl=1')
+                // 解析图片下载地址
+                var regexDownloadUrl = new RegExp('https://i.postimg.cc/\\\w{8}/' + imageFormatName + '\\?dl=1')
                 var url = getDownloadUrlResponse.toString().match(regexDownloadUrl)[0]
                 if((url == undefined) || (url == null)){
                     ctx.log.info('解析下载地址失败, 请检查API Key是否过期')
                 }
                 else{
-                    // 装载下载地址
+                    // 清空图片缓冲区
                     delete imgList[i].base64Image
                     delete imgList[i].buffer
+
                     imgList[i]['imgUrl'] = url
-                    ctx.log.info(url)
                 }
             }
             else{
