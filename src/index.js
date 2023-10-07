@@ -35,7 +35,7 @@ const config = (ctx) => {
  * @param {图片源数据} img 
  * @returns 图片上传请求
  */
-const imageUploadRequestConstruct = (userConfig, fileName, extname, img) => {
+const imageUploadRequestConstruct = (userConfig, fileName, img) => {
     var formObject = {
         'key' : userConfig.api_key,
         'gallery': userConfig.gallery,
@@ -44,7 +44,7 @@ const imageUploadRequestConstruct = (userConfig, fileName, extname, img) => {
         'version': '1.0.1',
         'portable':'1',
         'name': fileName.split('.')[0],
-        'type': extname.slice(1),
+        'type': fileName.split('.')[1],
         'image': img
     }
     var formBody = []
@@ -83,56 +83,41 @@ const getDownloadUrlRequestConstruct = (page) => {
 
 
 const handle = async (ctx) => {
-    // 检查用户配置信息
     const userConfig = ctx.getConfig('picBed.postimage')
     if(!userConfig){
         throw new Error('请配置API KEY！')
     }       
 
-    // 上传图片
     const imgList = ctx.output
     for(var i in imgList) {
-        try{
-            // 获取缓冲区图片
-            let img = imgList[i].base64Image
-            if(!img && imgList[i].buffer){
-                img = imgList[i].buffer.toString('base64')
-            }
+        let img = imgList[i].base64Image
+        if(!img && imgList[i].buffer){
+            img = imgList[i].buffer.toString('base64')
+        }
 
-            // 上传图片
-            const imageFormatName = `${new Date().getTime()}${imgList[i].extname}`
-            const imageUploadRequest = imageUploadRequestConstruct(userConfig, imageFormatName, imgList[i].extname, img)
-            const imageUploadResponse = await ctx.Request.request(imageUploadRequest)
-
-            // 解析xml中的page地址
-            var regexPage = new RegExp('<page>http://postimg.cc/\\\w*</page>')
-            var page = imageUploadResponse.toString().match(regexPage)[0].slice(6, -7)
-            if(page){
-                // 获取图片管理html页面
-                const getDownloadUrlRequest = getDownloadUrlRequestConstruct(page)
-                const getDownloadUrlResponse = await ctx.Request.request(getDownloadUrlRequest)
-
+        // 上传图片
+        await ctx.request(imageUploadRequestConstruct(userConfig, imgList[i].fileName, img)).then(async (imageUploadResponse) => {
+            // 解析 xml 中的管理页面地址
+            // 此处 imageUploadResponse 可解析出缩略图链接、压缩图像链接
+            var page = imageUploadResponse.match(new RegExp('<page>http://postimg.cc/\\\w*</page>'))[0].slice(6, -7)
+            await ctx.request(getDownloadUrlRequestConstruct(page)).then((getDownloadUrlResponse) => {
                 // 解析图片下载地址
-                var regexDownloadUrl = new RegExp('https://i.postimg.cc/\\\w{8}/' + imageFormatName + '\\?dl=1')
-                var url = getDownloadUrlResponse.toString().match(regexDownloadUrl)[0]
-                if((url == undefined) || (url == null)){
-                    ctx.log.info('解析下载地址失败, 请检查API Key是否过期')
+                var url = getDownloadUrlResponse.match(new RegExp('https://i.postimg.cc/\\\w{8}/.*\?dl=1'))[0]
+                if(!url){
+                    ctx.log.error('[Postimage] 解析下载地址失败')
                 }
                 else{
-                    // 清空图片缓冲区
+                    imgList[i]['imgUrl'] = url
+
                     delete imgList[i].base64Image
                     delete imgList[i].buffer
-
-                    imgList[i]['imgUrl'] = url
                 }
-            }
-            else{
-                ctx.log.error('图片上传失败, 原因可能是图片尺寸超出限制、网络状态不佳……')
-            }
-        }
-        catch(err){
-            ctx.log.info('文件上传失败, 请检查API Key是否过期、网络状态是否良好')
-        }
+            }).catch((error) => {
+                ctx.log.error(`[Postimage] 解析下载地址失败，${error.message}`)
+            })
+        }).catch((error) => {
+            ctx.log.error(`[Postimage] 图片上传失败，${error.message}`)
+        })
     }
     return ctx
 }
