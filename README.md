@@ -13,25 +13,25 @@
 
 1. 搜索插件 `postimage` 安装
 
-   ![image-20220210140318183](https://image.krins.cloud/68747470733a2f2f692e706f7374696d672e63632f775458544a734d482f3230323230323130313430333234352e706e67)
+   ![1](https://image.krins.cloud/1.jpg)
 
 2. 前往 [官网](https://postimages.org/) 注册账号
 
-   ![image-20220210140414411](https://image.krins.cloud/68747470733a2f2f692e706f7374696d672e63632f73676651674a63622f3230323230323130313430343533302e706e67)
+   ![2](https://image.krins.cloud/2.jpg)
 
 3. 在 [这里](https://postimages.org/login/api) 获取 `API KEY`，点击生成后复制下来
 
-   ![image-20220210140935379](https://image.krins.cloud/68747470733a2f2f692e706f7374696d672e63632f73666253484735622f3230323230323130313430393535392e706e67)
+   ![3](https://image.krins.cloud/3.jpg)
 
 4. 在设置中填写相关信息
 
-   ![image-20220210140701062](https://image.krins.cloud/68747470733a2f2f692e706f7374696d672e63632f6b34437a384470362f3230323230323130313430373132382e706e67)
+   ![4](https://image.krins.cloud/4.jpg)
 
    - `API Key`：刚刚你复制的那串字符
    
    - `图片分配`：可以看成文件夹，比如上述配置 postimage 就会把图片存储在 image 文件夹下
    
-     ![image-20220210141232534](https://image.krins.cloud/68747470733a2f2f692e706f7374696d672e63632f37685179587943792f3230323230323130313431323731322e706e67)
+     ![5](https://image.krins.cloud/5.jpg)
    
 5. 点击确定，设置完成！
 
