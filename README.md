@@ -1,13 +1,13 @@
 # picgo-plugin-postimage
 
-![](https://img.shields.io/badge/release-v1.1.4-green) ![](https://img.shields.io/badge/License-MIT-blue)
+![](https://img.shields.io/badge/release-v1.1.5-green) ![](https://img.shields.io/badge/License-MIT-blue)
 
 ## 简介
 
-[Postimage](https://postimages.org/)是一款来自国外的图片上传/托管工具，分为免费版和付费版，支持`网页/win端/浏览器插件`上传图片。其免费版的限制如下：
+[Postimage](https://postimages.org/)是一款来自国外的图片上传/托管工具，分为免费版和付费版，支持 **网页/win端/浏览器插件** 上传图片。其中免费版的限制如下：
 
-- 热链接图片缩放至1280px
-- 最大上传 24Mb (3MB) 的图片
+- 最大上传 `24Mb` 的图片
+- 热链接图片缩放至 `1280px`
 
 ## 环境搭建
 
@@ -34,5 +34,3 @@
      ![5](https://image.krins.cloud/5.jpg)
    
 5. 点击确定，设置完成！
-
-   
